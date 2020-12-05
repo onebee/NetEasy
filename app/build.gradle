@@ -1,0 +1,147 @@
+plugins {
+    id 'com.android.application'
+}
+
+// 赋值与引用
+def androidId = rootProject.ext.androidId
+def appId = rootProject.ext.appId
+def support = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion androidId.compileSdkVersion
+    buildToolsVersion androidId.buildToolsVersion
+
+    defaultConfig {
+        applicationId appId.applicationId
+        minSdkVersion androidId.minSdkVersion
+        targetSdkVersion androidId.targetSdkVersion
+        versionCode androidId.versionCode
+        versionName androidId.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+
+        // 开启分包
+        multiDexEnabled false
+        // 设置分包配置
+        // multiDexKeepFile file('multidex-config.txt')
+
+        // 将svg图片生成 指定维度的png图片
+        // vectorDrawables.generatedDensities('xhdpi','xxhdpi')
+        // 使用support-v7兼容（5.0版本以上）
+        vectorDrawables.useSupportLibrary = true
+        // 只保留指定和默认资源
+//        resConfigs('zh-rCN')
+
+        // 配置so库CPU架构（真机：arm，模拟器：x86）
+        // x86  x86_64  mips  mips64
+        ndk {
+            //abiFilters('armeabi', 'armeabi-v7a')
+            // 为了模拟器启动
+            abiFilters('x86', 'x86_64')
+        }
+
+        // 该方法只能在 buildTypes 或 defaultConfig 节点下面. 第三个参数必须为String
+        // 为什么要定义这个? src 代码有可能跨模块交互. 如果是组件化显然不行
+        // gradle 里面的配置 需要在Java 代码里面调用,这里起桥梁作用
+        buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
+    }
+
+//    ndk {
+//        abiFilters('x86','x86_64')
+//    }
+
+    sourceSets {
+
+        main {
+            if (!isRelease) {
+                // 如果是组件化模式,需要单独运行
+
+            } else {
+                // 如果是集成化模式,整个项目打包
+            }
+
+        }
+    }
+
+    // 必须配在 buildTypes 之前
+    signingConfigs {
+
+        debug {
+
+        }
+
+        release {
+
+        }
+    }
+
+    buildTypes {
+
+        debug {
+
+            buildConfigField("String", "debug", "\"${url.debug}\"")
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "debug", "\"${url.release}\"")
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    // AdbOptions 可以对 adb 操作选项添加配置
+    adbOptions {
+        // 配置操作超时时间，单位毫秒
+        timeOutInMs = 5 * 1000_0
+
+        // adb install 命令的选项配置
+        installOptions '-r', '-s'
+    }
+    // 对 dx 操作的配置，接受一个 DexOptions 类型的闭包，配置由 DexOptions 提供
+    dexOptions {
+        // 配置执行 dx 命令是为其分配的最大堆内存
+        javaMaxHeapSize "4g"
+        // 配置是否预执行 dex Libraries 工程，开启后会提高增量构建速度，不过会影响 clean 构建的速度，默认 true
+        preDexLibraries = false
+        // 配置是否开启 jumbo 模式，代码方法是超过 65535 需要强制开启才能构建成功
+        jumboMode true
+        // 配置 Gradle 运行 dx 命令时使用的线程数量
+        threadCount 8
+        // 配置multidex参数
+        additionalParameters = [
+                '--multi-dex', // 多dex分包
+                '--set-max-idx-number=50000', // 每个包内方法数上限
+                // '--main-dex-list=' + '/multidex-config.txt', // 打包到主classes.dex的文件列表
+                '--minimal-main-dex'
+        ]
+    }
+    // 执行 gradle lint 命令即可运行 lint 检查，默认生成的报告在 outputs/lint-results.html 中
+    lintOptions {
+        // 遇到 lint 检查错误会终止构建，一般设置为 false
+        abortOnError false
+        // 将警告当作错误来处理（老版本：warningAsErros）
+        warningsAsErrors false
+        // 检查新 API
+        check 'NewApi'
+    }
+}
+
+dependencies {
+
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    support.each { k, v -> implementation v }
+
+    implementation project(':common')
+
+    // 如果是集成化 发布版本的时候 order 和 personal 不能独立运行
+    if (isRelease) {
+        implementation project(':order')
+        implementation project(':personal')
+    }
+}

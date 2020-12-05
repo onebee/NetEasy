@@ -1,0 +1,31 @@
+ext {
+
+    username = "onebit"
+    isRelease = false
+    androidId = [
+            "compileSdkVersion": 30,
+            "buildToolsVersion": "30.0.2",
+            "minSdkVersion"    : 22,
+            "targetSdkVersion" : 30,
+            "versionCode"      : 1,
+            "versionName"      : "1.0"
+
+    ]
+    appId = [
+            "applicationId": "com.one.neteasy",
+            "orderAppID" :"com.one.module.order",
+            "personalAppID" :"com.one.module.personal"
+    ]
+
+    url = [
+            "debug"  : "https:a.b.c/debug",
+            "release": "https:a.b.c/release"
+    ]
+
+    supportLibrary = "1.2.0"
+    dependencies = [
+            "appcompat"       : "androidx.appcompat:appcompat:${supportLibrary}",
+            "material"        : "com.google.android.material:material:1.2.1",
+            "constraintlayout": "androidx.constraintlayout:constraintlayout:2.0.4"
+    ]
+}

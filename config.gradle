@@ -1,7 +1,7 @@
 ext {
 
     username = "onebit"
-    isRelease = false
+    isRelease = true
     androidId = [
             "compileSdkVersion": 30,
             "buildToolsVersion": "30.0.2",

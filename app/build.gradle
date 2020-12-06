@@ -45,6 +45,14 @@ android {
         // 为什么要定义这个? src 代码有可能跨模块交互. 如果是组件化显然不行
         // gradle 里面的配置 需要在Java 代码里面调用,这里起桥梁作用
         buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
+
+        // 在gradle文件中配置选项参数值（用于APT传参接收）
+        // 切记：必须写在defaultConfig节点下
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [content : 'hello apt']
+            }
+        }
     }
 
 //    ndk {
@@ -138,6 +146,7 @@ dependencies {
     support.each { k, v -> implementation v }
 
     implementation project(':common')
+    implementation project(':annotation')
 
     // 如果是集成化 发布版本的时候 order 和 personal 不能独立运行
     if (isRelease) {

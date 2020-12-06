@@ -1,3 +1,5 @@
+include ':complie'
+include ':annotation'
 include ':common'
 include ':personal'
 include ':order'

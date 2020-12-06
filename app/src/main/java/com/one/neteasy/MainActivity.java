@@ -2,8 +2,11 @@ package com.one.neteasy;
 
 import android.os.Bundle;
 
+import com.one.modular.annotation.ARouter;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+@ARouter(path = "app/MainActivity")
 public class MainActivity extends AppCompatActivity {
 
     @Override
